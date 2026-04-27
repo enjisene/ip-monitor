@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:18.3-bookworm
+    container_name: ip-monitoring-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${PROJECT_ROOT}/out/pgdata:/var/lib/postgresql
+    ports:
+      - "${DB_PORT}:5432"
+    restart: always
+
+  api:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+      RACK_ENV: ${RACK_ENV}
+    depends_on:
+      - db
+
+  worker:
+    build: .
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: bundle exec ruby scheduler.rb
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+      MONITORING_INTERVAL: ${MONITORING_INTERVAL}
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
