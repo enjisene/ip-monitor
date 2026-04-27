@@ -8,7 +8,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:18.3-bookworm
         env:
           POSTGRES_USER: ip_monitor_user
           POSTGRES_PASSWORD: password
