@@ -39,6 +39,12 @@ jobs:
       - name: Run Linter
         run: bundle exec rubocop
 
+      - name: Run Migrations
+        env:
+          DATABASE_URL: postgres://ip_monitor_user:password@localhost:5432/ip_monitor_test
+          RACK_ENV: test
+        run: bundle exec rake db:migrate
+
       - name: Run Tests
         env:
           DATABASE_URL: postgres://ip_monitor_user:password@localhost:5432/ip_monitor_test
